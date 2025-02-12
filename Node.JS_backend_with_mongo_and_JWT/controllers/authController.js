@@ -13,7 +13,7 @@ const handleLogin = async (req, res) => {
     }
     const match = await bcrypt.compare(pwd, foundUser.password);
     if (match) {
-        const roles = Object.values(foundUser.roles);
+        const roles = Object.values(foundUser.roles).filter(Boolean);
         //create JWTs here
         const accessToken = jwt.sign(
             { 
@@ -34,7 +34,7 @@ const handleLogin = async (req, res) => {
         const result = await foundUser.save();
         console.log(result);
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000 }); // set to 1 day for now... sameSite and secure MUST both be set for cors to work the SAME options must be set when DELETING a cookie/ secure: true doesnt work with thunderclient but must be there for production
-        res.status(200).json({ accessToken });
+        res.status(200).json({ accessToken }); // Please note - roles are being sent in the access token above.
     } else {
         res.sendStatus(401);
     }
